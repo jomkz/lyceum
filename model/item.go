@@ -25,6 +25,7 @@ type Item struct {
 	Hash     string `json:"hash" validate:"-"`
 	Name     string `json:"name" validate:"required,min=3"`
 	Location string `json:"location" validate:"-"`
+	FileType string `json:"file_type" validate:"-"`
 	Status   string `json:"status" validate:"-"`
 }
 

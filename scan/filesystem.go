@@ -15,9 +15,65 @@
 package scan
 
 import (
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/jmckind/lyceum/model"
+	"github.com/jmckind/lyceum/store"
 	"github.com/sirupsen/logrus"
 )
 
-func ScanFilesystem() {
-	logrus.Infof("scanning filesystem...")
+// SearchDirectory will scan a directory for items
+func SearchDirectory(abspath string) {
+	logrus.Infof("searching directory: %s", abspath)
+	items, err := findFiles(abspath)
+	if err != nil {
+		logrus.Fatalf("Unable to search directory: %v", err)
+		return
+	}
+
+	err = saveItems(items)
+	if err != nil {
+		logrus.Fatalf("Unable to save items: %v", err)
+		return
+	}
+}
+
+func findFiles(dir string) ([]string, error) {
+	logrus.Infof("scanning path: %s", dir)
+	fileList := make([]string, 0)
+
+	errw := filepath.Walk(dir, func(path string, f os.FileInfo, err error) error {
+		if strings.HasSuffix(path, ".pdf") || strings.HasSuffix(path, ".epub") {
+			fileList = append(fileList, path)
+		}
+		return err
+	})
+	if errw != nil {
+		panic(errw)
+	}
+	return fileList, nil
+}
+
+func saveItems(items []string) error {
+	logrus.Infof("saving %d files", len(items))
+	for _, file := range items {
+		newItem := new(model.Item)
+
+		paths := strings.Split(file, "/")
+		filename := paths[len(paths)-1]
+		parts := strings.Split(filename, ".")
+
+		newItem.Name = parts[0]
+		newItem.FileType = parts[len(parts)-1]
+		newItem.Location = string(file)
+
+		item, err := store.CreateItem(newItem)
+		if err != nil {
+			return err
+		}
+		logrus.Debugf("saved item: %v", item)
+	}
+	return nil
 }

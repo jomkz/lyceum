@@ -22,5 +22,5 @@ import (
 
 func main() {
 	util.PrintVersion("lyceum-scan", version.Version)
-	scan.ScanFilesystem()
+	scan.SearchDirectory("/var/lib/lyceum/library")
 }
