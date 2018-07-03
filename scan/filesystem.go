@@ -26,7 +26,6 @@ import (
 
 // SearchDirectory will scan a directory for items
 func SearchDirectory(abspath string) {
-	logrus.Infof("searching directory: %s", abspath)
 	items, err := findFiles(abspath)
 	if err != nil {
 		logrus.Fatalf("Unable to search directory: %v", err)
