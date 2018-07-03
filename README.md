@@ -1,6 +1,6 @@
-# lyceum
+# Lyceum
 
-Lyceum is an open source eBook library server written in Go.
+Lyceum is an open source eBook management system written in Go.
 
 ## Overview
 
