@@ -13,3 +13,6 @@
 
 # Dep vendor directory
 vendor/
+
+# Bolt database files
+*.db
