@@ -9,6 +9,51 @@ attempting to upload a newly purchased eBook to a popular cloud based eBook
 library service. The desire was born to create a hosted version that can be
 deployed on a private network, with the content under full control of the owner.
 
+## Development
+
+Check out the source code and navigate to the project root directory. Ensure the
+project dependencies are present.
+
+```
+dep ensure
+```
+
+Build the application binaries
+
+```
+./hack/build
+```
+
+Run the application binary that you are interested in.
+
+```
+lyceum-api
+lyceum-scan
+```
+
+#### API
+
+Run the `api` application from the command line.
+
+```
+lyceum-api
+```
+
+From another window, you can issue curl requests against the api server that is
+running on localhost.
+
+```
+curl -v localhost:4778/items
+```
+
+#### Scan
+
+Run the `scan` application from the command line.
+
+```
+lyceum-scan
+```
+
 ## FAQ
 
 __Where did you get the name for this project?__
