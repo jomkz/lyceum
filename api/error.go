@@ -12,15 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package api
 
 import (
-	"github.com/jmckind/lyceum/api"
-	"github.com/jmckind/lyceum/util"
-	"github.com/jmckind/lyceum/version"
+	"fmt"
+	"strings"
+
+	"github.com/sirupsen/logrus"
+	"gopkg.in/go-playground/validator.v9"
 )
 
-func main() {
-	util.PrintVersion("lyceum-api", version.Version)
-	api.Listen()
+func validationFailedResponse(err error) map[string]string {
+	logrus.Errorf("validation failed: %v", err)
+	result := make(map[string]string)
+	if err != nil {
+		var errors []string
+		for _, err := range err.(validator.ValidationErrors) {
+			s := fmt.Sprintf("%s %s %s", err.Field(), err.Tag(), err.Param())
+			errors = append(errors, strings.TrimSpace(s))
+		}
+		result["message"] = strings.Join(errors[:], ".")
+	}
+	return result
 }

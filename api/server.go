@@ -15,18 +15,30 @@
 package api
 
 import (
-  "net/http"
-
-  "github.com/sirupsen/logrus"
+	"github.com/jmckind/lyceum/model"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
+	"gopkg.in/go-playground/validator.v9"
 )
 
-func index(w http.ResponseWriter, r *http.Request) {
-  logrus.Infof("handle index")
-  w.Write([]byte("lyceum"))
+// Listen starts the web server
+func Listen() {
+	e := echo.New()
+	addMiddleware(e)
+	addRoutes(e)
+	e.Start(":4778")
 }
 
-func Listen() {
-  logrus.Infof("listening for connections...")
-  http.HandleFunc("/", index)
-  http.ListenAndServe(":4778", nil)
+func addMiddleware(e *echo.Echo) {
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+}
+
+func addRoutes(e *echo.Echo) {
+	e.Validator = &model.ItemValidator{Validator: validator.New()}
+	e.GET("/items", listItems)
+	e.POST("/items", createItem)
+	e.GET("/items/:id", getItem)
+	e.PUT("/items/:id", updateItem)
+	e.DELETE("/items/:id", deleteItem)
 }
