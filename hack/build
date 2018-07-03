@@ -5,3 +5,4 @@ set -x
 
 go build -o $GOPATH/bin/lyceum-api ./cmd/api
 go build -o $GOPATH/bin/lyceum-scan ./cmd/scan
+go build -o $GOPATH/bin/lyceum-inspect ./cmd/inspect

@@ -29,6 +29,12 @@
   version = "v0.16.0"
 
 [[projects]]
+  name = "github.com/kapmahc/epub"
+  packages = ["."]
+  revision = "7759d080da6dd736e42fc896da65cc6f7e79c2b3"
+  version = "v0.1.1"
+
+[[projects]]
   name = "github.com/labstack/echo"
   packages = [
     ".",
@@ -47,6 +53,12 @@
   ]
   revision = "d6898124de917583f5ff5592ef931d1dfe0ddc05"
   version = "0.2.6"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/ledongthuc/pdf"
+  packages = ["."]
+  revision = "fb84fa0e709b8591647ae8b7fb46961271ef151a"
 
 [[projects]]
   name = "github.com/mattn/go-colorable"
@@ -112,6 +124,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "50b15f6fcfdd501d0cddb9b95828368b50dc932a31c2e3b5f6fd594bc3ccbaf4"
+  inputs-digest = "2b83210aa6cc5230657ff706b413b14543c1bfb55ebdf0b255bf0cc813cea3f1"
   solver-name = "gps-cdcl"
   solver-version = 1
