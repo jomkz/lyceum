@@ -15,12 +15,12 @@
 package main
 
 import (
-  "github.com/jmckind/lyceum/scan"
-  "github.com/jmckind/lyceum/util"
-  "github.com/jmckind/lyceum/version"
+	"github.com/jmckind/lyceum/scan"
+	"github.com/jmckind/lyceum/util"
+	"github.com/jmckind/lyceum/version"
 )
 
 func main() {
-  util.PrintVersion("lyceum-scan", version.Version)
-  scan.ScanFilesystem()
+	util.PrintVersion("lyceum-scan", version.Version)
+	scan.ScanFilesystem()
 }

@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package update
+package scan
 
 import (
-  "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 func ScanFilesystem() {
-  logrus.Infof("scanning filesystem...")
+	logrus.Infof("scanning filesystem...")
 }
