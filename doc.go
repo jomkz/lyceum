@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package lyceum is an open source eBook library system written in Go.
+// Package lyceum is an open source eBook management system written in Go.
 package lyceum
