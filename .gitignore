@@ -1,3 +1,5 @@
+# Temporary files and directories
+routes/
 test-results/
 tmp/
-routes/
+*.tar.gz
