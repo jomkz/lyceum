@@ -15,30 +15,69 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/jmckind/lyceum/model"
+	"github.com/jmckind/lyceum/store"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/go-playground/validator.v9"
+	r "gopkg.in/gorethink/gorethink.v4"
 )
 
-// Listen starts the web server
-func Listen() {
-	e := echo.New()
-	addMiddleware(e)
-	addRoutes(e)
-	e.Start(":4778")
+// LyceumServer represents the properties for a lyceum server
+type LyceumServer struct {
+	options     map[string]interface{}
+	session     *r.Session
+	controllers []interface{}
 }
 
-func addMiddleware(e *echo.Echo) {
+// LyceumContext is a custom context for echo
+type LyceumContext struct {
+	echo.Context
+	Server *LyceumServer
+}
+
+// NewLyceumServer will create a new server instance
+func NewLyceumServer(opts map[string]interface{}) *LyceumServer {
+	logrus.SetLevel(logrus.DebugLevel)
+	session, err := store.ConnectRethinkDB(opts)
+	if err != nil {
+		logrus.Fatalf("unable to connect to database: %v", err)
+	}
+	return &LyceumServer{options: opts, session: session}
+}
+
+// Listen starts the web server
+func (ls *LyceumServer) Listen() {
+	e := echo.New()
+	ls.addMiddleware(e)
+	ls.addRoutes(e)
+	e.Start(
+		fmt.Sprintf("%s:%d", ls.options["listen_ip"], ls.options["listen_port"]),
+	)
+}
+
+func (ls *LyceumServer) addMiddleware(e *echo.Echo) {
+	e.Use(func(h echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			cc := &LyceumContext{c, ls}
+			return h(cc)
+		}
+	})
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 }
 
-func addRoutes(e *echo.Echo) {
+func (ls *LyceumServer) addRoutes(e *echo.Echo) {
 	e.Validator = &model.ItemValidator{Validator: validator.New()}
-	e.GET("/items", listItems)
-	e.POST("/items", createItem)
-	e.GET("/items/:id", getItem)
-	e.PUT("/items/:id", updateItem)
-	e.DELETE("/items/:id", deleteItem)
+
+	ic := NewItemController(ls.session)
+	e.GET("/items", ic.List)
+	e.POST("/items", ic.Create)
+	e.GET("/items/:id", ic.Get)
+	e.PUT("/items/:id", ic.Update)
+	e.DELETE("/items/:id", ic.Delete)
+	ls.controllers = append(ls.controllers, ic)
 }

@@ -2,6 +2,24 @@
 
 
 [[projects]]
+  name = "github.com/HouzuoGuo/tiedot"
+  packages = [
+    "data",
+    "db",
+    "dberr",
+    "gommap",
+    "tdlog"
+  ]
+  revision = "96fa90b5e4620f677d2737bc5358329040942adb"
+  version = "3.4"
+
+[[projects]]
+  name = "github.com/cenkalti/backoff"
+  packages = ["."]
+  revision = "2ea60e5f094469f9e65adb9cd103795b73ae743e"
+  version = "v2.0.0"
+
+[[projects]]
   name = "github.com/coreos/bbolt"
   packages = ["."]
   revision = "583e8937c61f1af6513608ccc75c97b6abdf4ff9"
@@ -12,6 +30,12 @@
   packages = ["."]
   revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
   version = "v3.2.0"
+
+[[projects]]
+  name = "github.com/fatih/structs"
+  packages = ["."]
+  revision = "a720dfa8df582c51dee1b36feabb906bde1588bd"
+  version = "v1.0"
 
 [[projects]]
   name = "github.com/go-playground/locales"
@@ -27,6 +51,18 @@
   packages = ["."]
   revision = "b32fa301c9fe55953584134cb6853a13c87ec0a1"
   version = "v0.16.0"
+
+[[projects]]
+  name = "github.com/golang/protobuf"
+  packages = ["proto"]
+  revision = "b4deda0973fb4c70b50d226b1af49f3da59f5265"
+  version = "v1.1.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/hailocab/go-hostpool"
+  packages = ["."]
+  revision = "e80d13ce29ede4452c43dea11e79b9bc8a15b478"
 
 [[projects]]
   name = "github.com/kapmahc/epub"
@@ -73,6 +109,16 @@
   version = "v0.0.3"
 
 [[projects]]
+  name = "github.com/opentracing/opentracing-go"
+  packages = [
+    ".",
+    "ext",
+    "log"
+  ]
+  revision = "1949ddbfd147afd4d964a9f00b24eb291e0e7c38"
+  version = "v1.0.2"
+
+[[projects]]
   name = "github.com/satori/go.uuid"
   packages = ["."]
   revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
@@ -102,9 +148,16 @@
   packages = [
     "acme",
     "acme/autocert",
+    "pbkdf2",
     "ssh/terminal"
   ]
   revision = "a49355c7e3f8fe157a85be2f77e6e269a0f89602"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/net"
+  packages = ["context"]
+  revision = "ed29d75add3d7c4bf7ca65aac0c6df3d1420216f"
 
 [[projects]]
   branch = "master"
@@ -116,14 +169,31 @@
   revision = "7138fd3d9dc8335c567ca206f4333fb75eb05d56"
 
 [[projects]]
+  name = "gopkg.in/fatih/pool.v2"
+  packages = ["."]
+  revision = "010e0b745d12eaf8426c95f9c3924d81dd0b668f"
+  version = "v2.0.0"
+
+[[projects]]
   name = "gopkg.in/go-playground/validator.v9"
   packages = ["."]
   revision = "ce9336f6e200cbb2e7c5672b36095b03f8bf5af7"
   version = "v9.19.0"
 
+[[projects]]
+  name = "gopkg.in/gorethink/gorethink.v4"
+  packages = [
+    ".",
+    "encoding",
+    "ql2",
+    "types"
+  ]
+  revision = "eec03bd47cfc11965a9de004ff86add2a88e65b0"
+  version = "v4.0.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2b83210aa6cc5230657ff706b413b14543c1bfb55ebdf0b255bf0cc813cea3f1"
+  inputs-digest = "b36e39fea5753bcb6fca74e1ac0625b5d4bbdda525cac437e9d70d51b119e98d"
   solver-name = "gps-cdcl"
   solver-version = 1

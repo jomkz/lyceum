@@ -22,6 +22,7 @@ import (
 	"github.com/jmckind/lyceum/model"
 	"github.com/jmckind/lyceum/store"
 	"github.com/sirupsen/logrus"
+	r "gopkg.in/gorethink/gorethink.v4"
 )
 
 // SearchDirectory will scan a directory for items
@@ -68,7 +69,19 @@ func saveItems(items []string) error {
 		newItem.FileType = parts[len(parts)-1]
 		newItem.Location = string(file)
 
-		item, err := store.CreateItem(newItem)
+		opts := map[string]interface{}{
+			"listen_ip":      "",
+			"listen_port":    4778,
+			"db_url":         "localhost:28015",
+			"db_con_initial": 10,
+			"db_con_max":     10,
+		}
+		session, err := store.ConnectRethinkDB(opts)
+		if err != nil {
+			logrus.Fatalf("unable to connect to database: %v", err)
+		}
+
+		item, err := store.InsertRethinkDBDocument(newItem, r.DB("lyceum").Table("library"), session)
 		if err != nil {
 			return err
 		}
