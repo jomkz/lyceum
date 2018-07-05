@@ -1,3 +1,0 @@
-#!/bin/sh
-
-revel build github.com/jmckind/lyceum dev
