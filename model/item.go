@@ -15,18 +15,39 @@
 package model
 
 import (
+	"github.com/fatih/structs"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/go-playground/validator.v9"
 )
 
 // Item type
 type Item struct {
-	ID       string `json:"id" validate:"-"`
-	Hash     string `json:"hash" validate:"-"`
-	Name     string `json:"name" validate:"required,min=3"`
-	Location string `json:"location" validate:"-"`
-	FileType string `json:"file_type" validate:"-"`
-	Status   string `json:"status" validate:"-"`
+	DateCreated  string `json:"date_created" validate:"-"`
+	DateModified string `json:"date_modified" validate:"-"`
+	FileType     string `json:"file_type" validate:"-"`
+	Hash         string `json:"hash" validate:"-"`
+	ID           string `json:"id" validate:"-"`
+	Location     string `json:"location" validate:"-"`
+	Name         string `json:"name" validate:"required,min=3"`
+	Status       string `json:"status" validate:"-"`
+}
+
+func ItemFromMap(val map[string]interface{}) *Item {
+	logrus.Debugf("item from map: %v", val)
+	item := new(Item)
+	item.FileType = val["file_type"].(string)
+	item.Hash = val["hash"].(string)
+	item.ID = val["id"].(string)
+	item.Location = val["location"].(string)
+	item.Name = val["name"].(string)
+	item.Status = val["status"].(string)
+	logrus.Debugf("item: %v", item)
+	return item
+}
+
+func (i *Item) AsMap() map[string]interface{} {
+	logrus.Debugf("as map: %v", i)
+	return structs.Map(i)
 }
 
 // ItemValidator type
