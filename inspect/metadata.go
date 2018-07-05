@@ -15,16 +15,30 @@
 package inspect
 
 import (
+	"bytes"
+
 	"github.com/jmckind/lyceum/store"
 	"github.com/kapmahc/epub"
 	"github.com/ledongthuc/pdf"
 	"github.com/sirupsen/logrus"
+	r "gopkg.in/gorethink/gorethink.v4"
 )
 
 // ProcessNewItems will process the metadata for all new items
 func ProcessNewItems() {
 	logrus.Infof("process new items")
-	items, err := store.GetItems()
+	opts := map[string]interface{}{
+		"listen_ip":      "",
+		"listen_port":    4778,
+		"db_url":         "localhost:28015",
+		"db_con_initial": 10,
+		"db_con_max":     10,
+	}
+	session, err := store.ConnectRethinkDB(opts)
+	if err != nil {
+		logrus.Fatalf("unable to connect to database: %v", err)
+	}
+	items, err := store.GetRethinkDBAllDocuments(r.DB("lyceum").Table("Library"), session)
 	if err != nil {
 		logrus.Fatalf("unable to get items")
 	}
@@ -63,7 +77,12 @@ func readPDF(filename string) {
 	}
 
 	var buf bytes.Buffer
-	buf.ReadFrom(r.GetPlainText())
+	plain, errp := r.GetPlainText()
+	if errp != nil {
+		logrus.Errorf("unable to read pdf contents: %v", err)
+		return
+	}
+	buf.ReadFrom(plain)
 
 	logrus.Infof("book: %+v", buf)
 }

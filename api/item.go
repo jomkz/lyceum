@@ -16,83 +16,141 @@ package api
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/jmckind/lyceum/model"
 	"github.com/jmckind/lyceum/store"
 	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
+	r "gopkg.in/gorethink/gorethink.v4"
 )
 
-func createItem(c echo.Context) error {
-	logrus.Infof("create item")
-	newItem := new(model.Item)
-	if err := c.Bind(newItem); err != nil {
-		logrus.Errorf("unable to bind model data: %v", err)
+type ItemController struct {
+	db      r.Term
+	session *r.Session
+	table   r.Term
+}
+
+func NewItemController(s *r.Session) *ItemController {
+	return &ItemController{
+		db:      r.DB("lyceum"),
+		session: s,
+		table:   r.DB("lyceum").Table("library"),
+	}
+}
+
+// Create will create a new item resource
+func (ic *ItemController) Create(c echo.Context) error {
+	logrus.Debugf("create item")
+	item := new(model.Item)
+	if err := c.Bind(item); err != nil {
+		logrus.Errorf("unable to bind data: %v", err)
 		return err
 	}
-	if err := c.Validate(newItem); err != nil {
+	if err := c.Validate(item); err != nil {
 		return c.JSON(http.StatusBadRequest, validationFailedResponse(err))
 	}
 
-	logrus.Infof("new item: %v", newItem)
-	item, err := store.CreateItem(newItem)
+	utc := time.Now().UTC().Format(time.RFC3339)
+	item.DateCreated = utc
+	item.DateModified = utc
+	item.Status = "new"
+
+	created, err := store.InsertRethinkDBDocument(item, ic.table, ic.session)
 	if err != nil {
-		msg := "unable to create item"
-		logrus.Errorf("%s: %v", msg, err)
-		return c.JSON(http.StatusInternalServerError, msg)
+		logrus.Errorf("unable to insert document: %v", err)
+		return c.JSON(http.StatusInternalServerError, "unexpected error")
 	}
-	return c.JSON(http.StatusCreated, item)
+	result := map[string]interface{}{
+		"item": created,
+	}
+	logrus.Debugf("created item: %v", created)
+	return c.JSON(http.StatusCreated, result)
 }
 
-func deleteItem(c echo.Context) error {
-	err := store.DeleteItem(c.Param("id"))
+// Delete will delete a single resource
+func (ic *ItemController) Delete(c echo.Context) error {
+	logrus.Debugf("delete item")
+	err := store.DeleteRethinkDBDocument(c.Param("id"), ic.table, ic.session)
 	if err != nil {
-		msg := "unable to delete item"
-		logrus.Errorf("%s: %v", msg, err)
-		return c.JSON(http.StatusInternalServerError, msg)
+		logrus.Errorf("unable to delete document: %v", err)
+		return c.JSON(http.StatusInternalServerError, "unexpected error")
 	}
+	logrus.Debugf("deleted item with id: %s", c.Param("id"))
 	return c.NoContent(http.StatusOK)
 }
 
-func getItem(c echo.Context) error {
-	item, err := store.GetItem(c.Param("id"))
-	if err != nil {
-		msg := "unable to get item"
-		logrus.Errorf("%s: %v", msg, err)
-		return c.JSON(http.StatusInternalServerError, msg)
+// Get will return a single resource
+func (ic *ItemController) Get(c echo.Context) error {
+	id := c.Param("id")
+	logrus.Debugf("get item with id: %s", id)
+	item, err := store.GetRethinkDBDocument(id, ic.table, ic.session)
+	if err == r.ErrEmptyResult {
+		return c.JSON(http.StatusNotFound, "item not found")
 	}
-	return c.JSON(http.StatusOK, item)
+	if err != nil {
+		logrus.Errorf("unable to get document: %v", err)
+		return c.JSON(http.StatusInternalServerError, "unexpected error")
+	}
+	result := map[string]interface{}{
+		"item": item,
+	}
+	logrus.Debugf("got item: %v", item)
+	return c.JSON(http.StatusOK, result)
 }
 
-func listItems(c echo.Context) error {
-	logrus.Infof("list items")
-	items, err := store.GetItems()
+// List will return the list of item resources
+func (ic *ItemController) List(c echo.Context) error {
+	logrus.Debugf("list items")
+	items, err := store.GetRethinkDBAllDocuments(ic.table, ic.session)
 	if err != nil {
-		msg := "unable to get items"
-		logrus.Errorf("%s: %v", msg, err)
-		return c.JSON(http.StatusInternalServerError, msg)
+		logrus.Errorf("unable to get all documents: %v", err)
+		return c.JSON(http.StatusInternalServerError, "unexpected error")
 	}
-
-	logrus.Infof("items: %v", items)
-	return c.JSON(http.StatusOK, items)
+	result := map[string]interface{}{
+		"items": items,
+		"total": len(items),
+	}
+	logrus.Debugf("items: %v", items)
+	return c.JSON(http.StatusOK, result)
 }
 
-func updateItem(c echo.Context) error {
-	logrus.Infof("update item")
-	updItem := new(model.Item)
-	if err := c.Bind(updItem); err != nil {
+// Update will update an existing item resource
+func (ic *ItemController) Update(c echo.Context) error {
+	id := c.Param("id")
+	logrus.Debugf("update item with id: %s", id)
+	item, err := store.GetRethinkDBDocument(id, ic.table, ic.session)
+	if err == r.ErrEmptyResult {
+		return c.JSON(http.StatusNotFound, "item not found")
+	}
+	if err != nil {
+		logrus.Errorf("unable to get document: %v", err)
+		return c.JSON(http.StatusInternalServerError, "unexpected error")
+	}
+
+	update := new(model.Item)
+	if err := c.Bind(update); err != nil {
+		logrus.Errorf("unable to bind data: %v", err)
 		return err
 	}
-	if err := c.Validate(updItem); err != nil {
+	if err := c.Validate(update); err != nil {
 		return c.JSON(http.StatusBadRequest, validationFailedResponse(err))
 	}
 
-	logrus.Infof("updated item: %v", updItem)
-	item, err := store.UpdateItem(c.Param("id"), updItem)
+	utc := time.Now().UTC().Format(time.RFC3339)
+	update.DateModified = utc
+
+	logrus.Infof("old: %v", item)
+	logrus.Infof("new: %v", update)
+
+	updated, err := store.UpdateRethinkDBDocument(id, update, ic.table, ic.session)
 	if err != nil {
-		msg := "unable to update item"
-		logrus.Errorf("%s: %v", msg, err)
-		return c.JSON(http.StatusInternalServerError, msg)
+		logrus.Errorf("unable to update document: %v", err)
+		return c.JSON(http.StatusInternalServerError, "unexpected error")
 	}
-	return c.JSON(http.StatusOK, item)
+	result := map[string]interface{}{
+		"item": updated,
+	}
+	logrus.Debugf("updated item: %v", updated)
+	return c.JSON(http.StatusOK, result)
 }
