@@ -4,20 +4,20 @@ import (
 	"github.com/revel/revel/testing"
 )
 
-type AppTest struct {
+type LibraryTest struct {
 	testing.TestSuite
 }
 
-func (t *AppTest) Before() {
+func (t *LibraryTest) Before() {
 	println("Set up")
 }
 
-func (t *AppTest) TestThatIndexPageWorks() {
+func (t *LibraryTest) TestThatIndexPageWorks() {
 	t.Get("/")
 	t.AssertOk()
 	t.AssertContentType("text/html; charset=utf-8")
 }
 
-func (t *AppTest) After() {
+func (t *LibraryTest) After() {
 	println("Tear down")
 }

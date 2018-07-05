@@ -12,22 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package controllers
+package models
 
-import (
-	"github.com/jmckind/lyceum/app"
-	"github.com/revel/revel"
-	rethink "gopkg.in/gorethink/gorethink.v4"
-)
-
-type LyceumController struct {
-	*revel.Controller
-}
-
-func (c LyceumController) getDB() rethink.Term {
-	return rethink.DB("lyceum")
-}
-
-func (c LyceumController) getSession() *rethink.Session {
-	return app.RDBSession
+// Item model represents an item in the library
+type Item struct {
+	Author			 string   `json:"author"`
+	Content      []byte   `json:"content"`
+	ContentType	 string   `json:"content_type"`
+	DateCreated  string   `json:"date_created"`
+	DateModified string   `json:"date_modified"`
+	Filename     string   `json:"filename"`
+	Hash         string   `json:"hash"`
+	ID           string   `json:"id"`
+	Name         string   `json:"name"`
+	Size				 int 		  `json:"size"`
+	Status       string   `json:"status"`
+	Tags				 []string `json:"tags"`
 }

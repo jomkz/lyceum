@@ -1,0 +1,34 @@
+{{set . "title" "Library"}}
+{{template "header.html" .}}
+
+<main role="main" class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <h2>{{.title}}</h2>
+    </div>
+  </div>
+
+  <div class="row">
+    {{range $index, $item := .items}}
+      <div class="col-12 col-sm-5 col-md-4 col-lg-3 col-xl-2 book-container">
+        <a href='{{url "Library.Detail" $item.ID}}'>
+          <div class="card mb-3 book-card">
+            <div class="card-body pt-2 pb-3 px-3 h-100">
+              <h5 class="card-title mt-0 mb-0 text-truncate">{{$item.Name}}</h5>
+              <p class="card-text mb-2"><small>{{$item.Author}}</small></p>
+              <div class="book-image">
+                <p class="text-center text-secondary"><i class="fa fa-5x fa-book my-auto" aria-hidden="true"></i></p>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    {{else}}
+      <div class="col-6 offset-3">
+        <div class="alert alert-light" role="alert"><i class="fa fa-exclamation-triangle mr-2" aria-hidden="true"></i>No items found.</div>
+      </div>
+    {{end}}
+  </div>
+</main>
+
+{{template "footer.html" .}}

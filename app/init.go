@@ -1,7 +1,9 @@
 package app
 
 import (
+	"github.com/jmckind/lyceum/app/db"
 	"github.com/revel/revel"
+	rethinkdb "gopkg.in/gorethink/gorethink.v4"
 )
 
 var (
@@ -10,6 +12,9 @@ var (
 
 	// BuildTime revel app build-time (ldflags)
 	BuildTime string
+
+	// RDBSession rethinkdb session handle
+	RDBSession *rethinkdb.Session
 )
 
 func init() {
@@ -33,7 +38,7 @@ func init() {
 	// revel.DevMode and revel.RunMode only work inside of OnAppStart. See Example Startup Script
 	// ( order dependent )
 	// revel.OnAppStart(ExampleStartupScript)
-	// revel.OnAppStart(InitDB)
+	revel.OnAppStart(InitDB)
 	// revel.OnAppStart(FillCache)
 }
 
@@ -56,3 +61,18 @@ var HeaderFilter = func(c *revel.Controller, fc []revel.Filter) {
 //		// Dev mode
 //	}
 //}
+
+func InitDB() {
+	opts := map[string]interface{}{
+		"listen_ip":      "",
+		"listen_port":    4778,
+		"db_url":         "localhost:28015",
+		"db_con_initial": 10,
+		"db_con_max":     10,
+	}
+	session, err := db.ConnectRethinkDB(opts)
+	if err != nil {
+		revel.AppLog.Errorf("unable to connect to database: %v", err)
+	}
+	RDBSession = session
+}

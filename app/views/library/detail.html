@@ -1,0 +1,43 @@
+{{set . "title" .item.Name}}
+{{template "header.html" .}}
+
+<main role="main" class="container">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/">Library</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{.item.Name}}</li>
+    </ol>
+  </nav>
+
+  <div class="jumbotron">
+    <div class="row">
+      <div class="col-2">
+        <div class="book-image">
+          <p class="text-center text-secondary"><i class="fa fa-5x fa-book my-auto" aria-hidden="true"></i></p>
+        </div>
+      </div>
+      <div class="col-10">
+        <h1>{{.item.Name}}</h1>
+        <p class="lead text-capitalize">Author: {{.item.Author}}</p>
+        <p class="lead">Filename: {{.item.Filename}}</p>
+        <p class="lead">Content Type: {{.item.ContentType}}</p>
+        <p class="lead">Size: <span class="lyceum-filesize">{{.item.Size}}</span></p>
+        <p class="lead text-capitalize">Status: {{.item.Status}}</p>
+        <p class="lead">Uploaded: <span class="text-capitalize lyceum-date-relative">{{.item.DateCreated}}</span></p>
+        <hr class="my-4">
+        <p>
+          {{range $index, $tag := .item.Tags}}
+            <span class="badge badge-secondary">{{$tag}}</span>
+          {{end}}
+        </p>
+        <p class="lead">
+          <a href='{{url "Library.Read" .item.ID}}' class="btn btn-primary btn-lg" role="button"><i class="fa fa-download" aria-hidden="true"></i>&nbsp;Read Now</a>
+          <a href='{{url "ItemAPI.Delete" .item.ID}}' id="linkDelete" class="btn btn-danger btn-lg pull-right" role="button"><i class="fa fa-trash" aria-hidden="true"></i>&nbsp;Delete</a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+{{template "footer.html" .}}

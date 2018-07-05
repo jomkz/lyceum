@@ -6,8 +6,19 @@
 module:testrunner
 # module:jobs
 
+# Application main routes
+GET     /                                       Library.List
+GET     /library/:id                            Library.Detail
+GET     /read/:id                               Library.Read
+GET     /search                                 Library.Search
+POST    /upload                                 Library.Upload
 
-GET     /                                       App.Index
+# Application API routes
+GET     /api/items                              ItemAPI.List
+POST    /api/items                              ItemAPI.Create
+GET     /api/items/:id                          ItemAPI.Get
+PUT     /api/items/:id                          ItemAPI.Update
+DELETE  /api/items/:id                          ItemAPI.Delete
 
 # Ignore favicon requests
 GET     /favicon.ico                            404
