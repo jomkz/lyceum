@@ -22,5 +22,13 @@ import (
 
 func main() {
 	util.PrintVersion("lyceum-api", version.Version)
-	api.Listen()
+	opts := map[string]interface{}{
+		"listen_ip":      "",
+		"listen_port":    4778,
+		"db_url":         "localhost:28015",
+		"db_con_initial": 10,
+		"db_con_max":     10,
+	}
+	server := api.NewLyceumServer(opts)
+	server.Listen()
 }
