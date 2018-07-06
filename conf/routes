@@ -4,7 +4,7 @@
 #
 
 module:testrunner
-# module:jobs
+module:jobs
 
 # Application main routes
 GET     /                                       Library.List
