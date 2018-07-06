@@ -85,8 +85,7 @@ func GetRethinkDBDocument(key string, table r.Term, session *r.Session) (*models
 
 // GetRethinkDBAllDocuments will get all documents from the given rethinkdb table
 func GetRethinkDBAllDocuments(table r.Term, session *r.Session) ([]models.Item, error) {
-	res, err := table.Run(session)
-	//res, err := ic.table.Filter(r.Row.Field("status").Ne("deleted")).Run(ic.session)
+	res, err := table.Filter(r.Row.Field("Status").Ne("deleted")).Run(session)
 	if err != nil {
 		revel.AppLog.Errorf("unable to run query: %v", err)
 		return nil, err
