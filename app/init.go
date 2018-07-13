@@ -2,9 +2,20 @@ package app
 
 import (
 	"github.com/jmckind/lyceum/app/db"
+	"github.com/jmckind/lyceum/app/services"
 	"github.com/revel/revel"
 	rethinkdb "gopkg.in/gorethink/gorethink.v4"
 )
+
+type AppServices struct {
+	ArtifactService     *services.ArtifactService
+	AuthService         *services.AuthService
+	ItemService         *services.ItemService
+	LibraryService      *services.LibraryService
+	OrganizationService *services.OrganizationService
+	RoleService         *services.RoleService
+	UserService         *services.UserService
+}
 
 var (
 	// AppVersion revel app version (ldflags)
@@ -13,8 +24,11 @@ var (
 	// BuildTime revel app build-time (ldflags)
 	BuildTime string
 
-	// RDBSession rethinkdb session handle
-	RDBSession *rethinkdb.Session
+	// RethinkDBSession rethinkdb session handle for the application
+	RethinkDBSession *rethinkdb.Session
+
+	// Services map of application services
+	Services *AppServices
 )
 
 func init() {
@@ -40,6 +54,7 @@ func init() {
 	// revel.OnAppStart(ExampleStartupScript)
 	revel.OnAppStart(InitDB)
 	// revel.OnAppStart(FillCache)
+	revel.OnAppStart(RegisterServices)
 }
 
 // HeaderFilter adds common security headers
@@ -74,5 +89,17 @@ func InitDB() {
 	if err != nil {
 		revel.AppLog.Errorf("unable to connect to database: %v", err)
 	}
-	RDBSession = session
+	RethinkDBSession = session
+}
+
+func RegisterServices() {
+	Services = &AppServices{
+		ArtifactService:     services.NewArtifactService(RethinkDBSession),
+		AuthService:         services.NewAuthService(RethinkDBSession),
+		ItemService:         services.NewItemService(RethinkDBSession),
+		LibraryService:      services.NewLibraryService(RethinkDBSession),
+		OrganizationService: services.NewOrganizationService(RethinkDBSession),
+		RoleService:         services.NewRoleService(RethinkDBSession),
+		UserService:         services.NewUserService(RethinkDBSession),
+	}
 }

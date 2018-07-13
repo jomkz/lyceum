@@ -14,21 +14,14 @@
 
 package models
 
-// Item model represents an item in the library
-type Item struct {
-	ArtifactID     string   `json:"artifact_id"`
-	Author         string   `json:"author"`
-	Content        []byte   `json:"content"`
-	ContentType    string   `json:"content_type"`
+// Library represents a logical container of artifacts
+type Library struct {
 	DateCreated    string   `json:"date_created"`
 	DateModified   string   `json:"date_modified"`
 	Description    string   `json:"description"`
-	Filename       string   `json:"filename"`
-	Hash           string   `json:"hash"`
 	ID             string   `json:"id"`
-	Name           string   `json:"name"`
+	Items          []string `json:"items"`
+	Name           string   `json:"display_name"`
 	OrganizationID string   `json:"organization_id"`
-	Size           int      `json:"size"`
-	Status         string   `json:"status"`
 	Tags           []string `json:"tags"`
 }

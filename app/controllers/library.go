@@ -15,79 +15,51 @@
 package controllers
 
 import (
-	"bytes"
+	"strings"
 	"time"
 
-	"github.com/jmckind/lyceum/app/db"
+	"github.com/jmckind/lyceum/app"
 	"github.com/revel/revel"
-	rethink "gopkg.in/gorethink/gorethink.v4"
 )
 
+// Library controller for library resources.
 type Library struct {
 	LyceumController
 }
 
-func (c Library) Detail(id string) revel.Result {
-	item, err := db.GetRethinkDBDocument(id, c.getTable(), c.getSession())
-	if err != nil {
-		c.Log.Errorf("unable to get document: %v", err)
-		return c.RenderError(err)
-	}
-	c.ViewArgs["item"] = item
-	return c.Render()
-}
-
-func (c Library) List() revel.Result {
-	items, err := db.GetRethinkDBAllDocuments(c.getTable(), c.getSession())
-	if err != nil {
-		c.Log.Errorf("unable to get all documents: %v", err)
-		return c.RenderError(err)
-	}
-	c.ViewArgs["items"] = items
-	return c.Render()
-}
-
-func (c Library) Read(id string) revel.Result {
-	item, err := db.GetRethinkDBDocument(id, c.getTable(), c.getSession())
-	if err != nil {
-		c.Log.Errorf("unable to get document: %v", err)
-		return c.RenderError(err)
-	}
-	return c.RenderBinary(
-		bytes.NewReader(item.Content),
-		item.Filename,
-		revel.Inline,
-		time.Now().UTC(),
-	)
-}
-
-func (c Library) Search(q string) revel.Result {
-	c.ViewArgs["term"] = q
-	return c.Render()
-}
-
-func (c Library) Upload(data []byte) revel.Result {
+// Create will save a new library.
+func (c Library) Create() revel.Result {
 	utc := time.Now().UTC().Format(time.RFC3339)
-	item := make(map[string]interface{})
-	item["Author"] = "unknown"
-	item["Content"] = data
-	item["ContentType"] = c.Params.Files["data"][0].Header.Get("Content-Type")
-	item["DateCreated"] = utc
-	item["DateModified"] = utc
-	item["Filename"] = c.Params.Files["data"][0].Filename
-	item["Name"] = c.Params.Files["data"][0].Filename
-	item["Size"] = len(data)
-	item["Status"] = "new"
-	item["Tags"] = []string{"foo", "bar", "baz"}
+	library := make(map[string]interface{})
+	library["DateCreated"] = utc
+	library["DateModified"] = utc
+	library["Description"] = c.Params.Get("description")
+	library["Name"] = c.Params.Get("name")
+	library["Tags"] = strings.Split(c.Params.Get("tags"), ",")
 
-	_, err := db.InsertRethinkDBDocument(item, c.getTable(), c.getSession())
+	_, err := app.Services.LibraryService.Create(library)
 	if err != nil {
-		c.Log.Errorf("unable to insert document: %v", err)
 		return c.RenderError(err)
 	}
 	return c.Redirect((*Library).List)
 }
 
-func (c Library) getTable() rethink.Term {
-	return c.getDB().Table("library")
+// Detail will show an existing library.
+func (c Library) Detail(id string) revel.Result {
+	library, err := app.Services.LibraryService.Get(id)
+	if err != nil {
+		return c.RenderError(err)
+	}
+	c.ViewArgs["library"] = library
+	return c.Render()
+}
+
+// List will retrieve all library resources.
+func (c Library) List() revel.Result {
+	libraries, err := app.Services.LibraryService.List()
+	if err != nil {
+		return c.RenderError(err)
+	}
+	c.ViewArgs["libraries"] = libraries
+	return c.Render()
 }

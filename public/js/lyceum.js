@@ -28,14 +28,21 @@ $( document ).ready(function() {
   });
 
   $("#linkDelete").click(function(e) {
-    var url = e.currentTarget.href;
-    if (confirm('Are you sure that you want to delete this item? This action is permanent.')) {
+    var link = $(e.currentTarget);
+    var url = link.attr("href");
+    var next = link.attr("data-next");
+
+    if (confirm('Are you sure? This action is permanent.')) {
       var request = $.ajax({
         url:    url,
         method: "DELETE"
       });
       request.done(function( msg ) {
-        window.location.replace("/");
+        if (next && next.length > 0) {
+          window.location.replace(next);
+        } else {
+          window.location.replace("/");
+        }
       });
       request.fail(function( jqXHR, textStatus ) {
         console.log("delete API failed: " + jqXHR.status + " " + jqXHR.statusText);

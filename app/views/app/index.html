@@ -1,0 +1,36 @@
+{{set . "title" "Home"}}
+{{template "header.html" .}}
+
+<div class="row">
+    <div class="col-12">
+      <h2>{{.title}}</h2>
+      <hr class="my-4"/>
+    </div>
+
+</div>
+
+
+<div class="row">
+    <div class="col-6">
+      <h4>Recent Uploads</h4>
+      <ul>
+        {{range $index, $upload := .uploads}}
+          <li>{{$upload.Name}}</li>
+        {{else}}
+          <li>None</li>
+        {{end}}
+      </ul>
+    </div>
+    <div class="col-6">
+      <h4>Organizations</h4>
+      <ul>
+        {{range $index, $org := .orgs}}
+          <li>{{$org.Name}}</li>
+        {{else}}
+          <li>None</li>
+        {{end}}
+      </ul>
+    </div>
+</div>
+
+{{template "footer.html" .}}

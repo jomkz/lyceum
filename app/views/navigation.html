@@ -4,13 +4,13 @@
     <span class="navbar-toggler-icon"></span>
   </button>
   <div class="collapse navbar-collapse" id="navbar-main">
-    <form action='{{url "Library.Search"}}' method="GET" class="form-inline my-2 my-lg-0 col-6">
+    <form action='{{url "App.Search"}}' method="GET" class="form-inline my-2 my-lg-0 col-6">
       <input type="text" class="w-75 form-control mr-sm-1" name="q" placeholder="Search" aria-label="Search">
-      <button type="submit" class="btn btn-secondary my-2 my-sm-0"><i class="fa fa-search" aria-hidden="true"></i></button>
+      <button type="submit" class="btn btn-default my-2 my-sm-0"><i class="fa fa-search" aria-hidden="true"></i></button>
     </form>
     <ul class="navbar-nav ml-auto">
       <li class="nav-item">
-        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#uploadModal"><i class="fa fa-upload" aria-hidden="true"></i>&nbsp;Upload</button>
+        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#uploadModal"><i class="fa fa-upload" aria-hidden="true"></i>&nbsp;Upload</button>
       </li>
     </ul>
   </div>
@@ -25,7 +25,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form action='{{url "Library.Upload"}}' method="POST" enctype="multipart/form-data" class="form">
+      <form action='{{url "Item.Upload"}}' method="POST" enctype="multipart/form-data" class="form">
         <div class="modal-body">
           <p>Please choose a file to upload.</p>
           <div class="form-group">

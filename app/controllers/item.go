@@ -15,89 +15,92 @@
 package controllers
 
 import (
-	"net/http"
+	"bytes"
+	"crypto/md5"
+	"fmt"
 	"time"
 
-	"github.com/jmckind/lyceum/app/db"
-	"github.com/jmckind/lyceum/app/models"
+	"github.com/jmckind/lyceum/app"
 	"github.com/revel/revel"
-	rethink "gopkg.in/gorethink/gorethink.v4"
 )
 
-type ItemAPI struct {
+// Item controller for item resources.
+type Item struct {
 	LyceumController
 }
 
-func (c ItemAPI) Create() revel.Result {
+// Detail will show an existing item.
+func (c Item) Detail(id string) revel.Result {
+	item, err := app.Services.ItemService.Get(id)
+	if err != nil {
+		return c.RenderError(err)
+	}
+	c.ViewArgs["item"] = item
+	return c.Render()
+}
+
+// List will retrieve all item resources.
+func (c Item) List() revel.Result {
+	items, err := app.Services.ItemService.List()
+	if err != nil {
+		return c.RenderError(err)
+	}
+	c.ViewArgs["items"] = items
+	return c.Render()
+}
+
+// Read will download the item with the given id.
+func (c Item) Read(id string) revel.Result {
+	item, err := app.Services.ItemService.Get(id)
+	if err != nil {
+		return c.RenderError(err)
+	}
+
+	artifact, err := app.Services.ArtifactService.Get(item.ArtifactID)
+	if err != nil {
+		return c.RenderError(err)
+	}
+
+	return c.RenderBinary(
+		bytes.NewReader(artifact.Content),
+		item.Filename,
+		revel.Inline,
+		time.Now().UTC(),
+	)
+}
+
+// Upload will create a new item with its associated artifact.
+func (c Item) Upload(data []byte) revel.Result {
 	utc := time.Now().UTC().Format(time.RFC3339)
-	item := new(models.Item)
-	item.Author = "unknown"
-	item.DateCreated = utc
-	item.DateModified = utc
-	item.Name = "New Item"
-	item.Status = "new"
+	newart := make(map[string]interface{})
+	newart["DateCreated"] = utc
+	newart["Content"] = data
+	newart["Hash"] = fmt.Sprintf("%x", md5.Sum(data))
+	newart["Size"] = len(data)
 
-	item, err := db.InsertRethinkDBDocument(item, c.getTable(), c.getSession())
+	artifact, err := app.Services.ArtifactService.Create(newart)
 	if err != nil {
-		c.Log.Errorf("unable to insert document: %v", err)
+		c.Log.Errorf("unable to create artifact: %v", err)
 		return c.RenderError(err)
 	}
-	result := map[string]interface{}{
-		"item": item,
-	}
-	return c.RenderJSON(result)
-}
 
-func (c ItemAPI) Delete(id string) revel.Result {
-	err := db.DeleteRethinkDBDocument(id, c.getTable(), c.getSession())
+	item := make(map[string]interface{})
+	item["Author"] = "unknown"
+	item["ArtifactID"] = artifact.ID
+	item["ContentType"] = c.Params.Files["data"][0].Header.Get("Content-Type")
+	item["DateCreated"] = utc
+	item["DateModified"] = utc
+	item["Filename"] = c.Params.Files["data"][0].Filename
+	item["Hash"] = artifact.Hash
+	item["Name"] = c.Params.Files["data"][0].Filename
+	item["Size"] = len(data)
+	item["Status"] = "new"
+	item["Tags"] = []string{"foo", "bar", "baz"}
+
+	_, err = app.Services.ItemService.Create(item)
 	if err != nil {
-		c.Log.Errorf("unable to delete document: %v", err)
+		c.Log.Errorf("unable to create item: %v", err)
 		return c.RenderError(err)
 	}
-	c.Response.Status = http.StatusNoContent
-	return c.RenderText("")
-}
-
-func (c ItemAPI) Get(id string) revel.Result {
-	item, err := db.GetRethinkDBDocument(id, c.getTable(), c.getSession())
-	if err != nil {
-		c.Log.Errorf("unable to get document: %v", err)
-		return c.RenderError(err)
-	}
-	result := map[string]interface{}{
-		"item": item,
-	}
-	return c.RenderJSON(result)
-}
-
-func (c ItemAPI) List() revel.Result {
-	items, err := db.GetRethinkDBAllDocuments(c.getTable(), c.getSession())
-	if err != nil {
-		c.Log.Errorf("unable to get all documents: %v", err)
-		return c.RenderError(err)
-	}
-	result := map[string]interface{}{
-		"items": items,
-		"total": len(items),
-	}
-	return c.RenderJSON(result)
-}
-
-func (c ItemAPI) Update(id string) revel.Result {
-	item := new(models.Item)
-	item.DateModified = time.Now().UTC().Format(time.RFC3339)
-
-	item, err := db.UpdateRethinkDBDocument(id, item, c.getTable(), c.getSession())
-	if err != nil {
-		c.Log.Errorf("unable to insert document: %v", err)
-		return c.RenderError(err)
-	}
-	result := map[string]interface{}{
-		"item": item,
-	}
-	return c.RenderJSON(result)
-}
-
-func (c ItemAPI) getTable() rethink.Term {
-	return c.getDB().Table("library")
+	return c.Redirect((*Item).List)
 }

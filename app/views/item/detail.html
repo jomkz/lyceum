@@ -1,0 +1,66 @@
+{{set . "title" .item.Name}}
+{{template "header.html" .}}
+
+
+<div class="row">
+  <div class="col-2">
+    <div class="book-image">
+      <div class="d-flex h-100">
+        <div class="w-100 justify-content-center align-self-center text-center">
+          <i class="fa fa-5x fa-book text-secondary" aria-hidden="true"></i>
+        </div>
+      </div>
+    </div>
+
+    <hr class="my-4">
+    <div class="text-center">
+      <p><a href='{{url "Item.Read" .item.ID}}' class="btn btn-primary btn-block" role="button"><i class="fa fa-download" aria-hidden="true"></i>&nbsp;Read Now</a></p>
+      <p><a href='{{url "ItemAPI.Delete" .item.ID}}' id="linkDelete" class="btn btn-danger btn-block" data-next='{{url "Item.List"}}' role="button"><i class="fa fa-trash" aria-hidden="true"></i>&nbsp;Delete</a></p>
+    </div>
+  </div>
+
+  <div class="col-10">
+    <h1>{{.item.Name}}</h1>
+    <small class="text-muted">Created <span class="lyceum-date-relative">{{.item.DateCreated}}</span> &mdash; Modified <span class="lyceum-date-relative">{{.item.DateModified}}</span></small>
+
+
+    <table class="table table-borderless table-striped">
+      <tbody>
+        <tr>
+          <th class="col-sm-2" scope="row">Author</th>
+          <td class="text-capitalize">{{.item.Author}}</td>
+        </tr>
+        <tr>
+          <th class="col-sm-2" scope="row">Filename</th>
+          <td>{{.item.Filename}}</td>
+        </tr>
+        <tr>
+          <th class="col-sm-2" scope="row">Content Type</th>
+          <td>{{.item.ContentType}}</td>
+        </tr>
+        <tr>
+          <th class="col-sm-2" scope="row">Size</th>
+          <td><span class="lyceum-filesize">{{.item.Size}}</span></td>
+        </tr>
+        <tr>
+          <th class="col-sm-2" scope="row">Checksum</th>
+          <td>{{.item.Hash}}</td>
+        </tr>
+        <tr>
+          <th class="col-sm-2" scope="row">Status</th>
+          <td>{{.item.Status}}</td>
+        </tr>
+      </tbody>
+    </table>
+    <hr class="my-4">
+
+    <p>
+      {{range $index, $tag := .item.Tags}}
+        <span class="badge badge-secondary">{{$tag}}</span>
+      {{end}}
+    </p>
+  </div>
+</div>
+
+
+{{template "footer.html" .}}

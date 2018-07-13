@@ -15,19 +15,44 @@
 package controllers
 
 import (
+	"net/http"
+
 	"github.com/jmckind/lyceum/app"
 	"github.com/revel/revel"
-	rethink "gopkg.in/gorethink/gorethink.v4"
 )
 
+// LyceumController adds application specific properties.
 type LyceumController struct {
 	*revel.Controller
 }
 
-func (c LyceumController) getDB() rethink.Term {
-	return rethink.DB("lyceum")
+// RenderJSONError will render a generic error message in JSON format.
+func (c LyceumController) RenderJSONError(err error) revel.Result {
+	res := map[string]string{
+		"message": "An unexpected error has occurred.",
+	}
+	c.Response.Status = http.StatusInternalServerError
+	c.Log.Errorf("rendering JSON error: %v", err)
+	return c.RenderJSON(res)
 }
 
-func (c LyceumController) getSession() *rethink.Session {
-	return app.RDBSession
+// App controller for general application resources.
+type App struct {
+	LyceumController
+}
+
+// Index renders the main "home" page for the application.
+func (c App) Index() revel.Result {
+	orgs, err := app.Services.OrganizationService.List()
+	if err != nil {
+		return c.RenderJSONError(err)
+	}
+	c.ViewArgs["orgs"] = orgs
+	return c.Render()
+}
+
+// Search will perform an application-wide search and display the results.
+func (c App) Search(q string) revel.Result {
+	c.ViewArgs["term"] = q
+	return c.Render()
 }

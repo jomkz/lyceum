@@ -17,7 +17,6 @@ package db
 import (
 	"fmt"
 
-	"github.com/jmckind/lyceum/app/models"
 	"github.com/revel/revel"
 	r "gopkg.in/gorethink/gorethink.v4"
 )
@@ -49,86 +48,75 @@ func DeleteRethinkDBDocument(key string, table r.Term, session *r.Session) error
 }
 
 // InsertRethinkDBDocument will insert the given document in rethinkdb
-func InsertRethinkDBDocument(doc interface{}, table r.Term, session *r.Session) (*models.Item, error) {
+func InsertRethinkDBDocument(doc interface{}, model interface{}, table r.Term, session *r.Session) error {
 	res, err := table.Insert(doc).RunWrite(session)
 	if err != nil {
 		revel.AppLog.Errorf("unable to run insert: %v", err)
-		return nil, err
+		return err
 	}
 	if res.Inserted != 1 {
-		return nil, fmt.Errorf("Inserted unexpected document count: %d", res.Inserted)
+		return fmt.Errorf("Inserted unexpected document count: %d", res.Inserted)
 	}
-	key := res.GeneratedKeys[0]
-	item, err := GetRethinkDBDocument(key, table, session)
-	if err != nil {
-		return nil, err
-	}
-	return item, nil
+	return GetRethinkDBDocument(res.GeneratedKeys[0], model, table, session)
 }
 
 // GetRethinkDBDocument will get the document with the given ID from rethinkdb
-func GetRethinkDBDocument(key string, table r.Term, session *r.Session) (*models.Item, error) {
+func GetRethinkDBDocument(key string, model interface{}, table r.Term, session *r.Session) error {
 	res, err := table.Get(key).Run(session)
 	if err != nil {
-		revel.AppLog.Errorf("unable to run get: %v", err)
-		return nil, err
+		revel.AppLog.Errorf("unable to run query: %v", err)
+		return err
 	}
 	defer res.Close()
-
-	item := new(models.Item)
-	err = res.One(&item)
-	if err != nil {
-		return nil, err
-	}
-	return item, nil
+	return res.One(model)
 }
 
 // GetRethinkDBAllDocuments will get all documents from the given rethinkdb table
-func GetRethinkDBAllDocuments(table r.Term, session *r.Session) ([]models.Item, error) {
-	res, err := table.Filter(r.Row.Field("Status").Ne("deleted")).Run(session)
+func GetRethinkDBAllDocuments(model interface{}, table r.Term, session *r.Session) error {
+	res, err := table.Run(session)
 	if err != nil {
 		revel.AppLog.Errorf("unable to run query: %v", err)
-		return nil, err
+		return err
 	}
 	defer res.Close()
-
-	items := make([]models.Item, 0)
-	err = res.All(&items)
+	err = res.All(model)
 	if err != nil {
 		revel.AppLog.Errorf("unable to get all rows: %v", err)
-		return nil, err
+		return err
 	}
-
-	return items, nil
+	return nil
 }
 
 // UpdateRethinkDBDocument will update the given document in rethinkdb
-func UpdateRethinkDBDocument(id string, doc interface{}, table r.Term, session *r.Session) (*models.Item, error) {
+func UpdateRethinkDBDocument(id string, doc interface{}, model interface{}, table r.Term, session *r.Session) error {
 	res, err := table.Get(id).Update(doc).RunWrite(session)
 	if err != nil {
 		revel.AppLog.Errorf("unable to run update: %v", err)
-		return nil, err
+		return err
 	}
 	if res.Replaced != 1 {
-		return nil, fmt.Errorf("unexpected document replaced count: %d", res.Replaced)
+		return fmt.Errorf("unexpected document replaced count: %d", res.Replaced)
 	}
-	item, err := GetRethinkDBDocument(id, table, session)
-	if err != nil {
-		return nil, err
-	}
-	return item, nil
+	return GetRethinkDBDocument(id, model, table, session)
 }
 
+// initializeRethinkDB will set up the database for the application.
 func initializeRethinkDB(session *r.Session) error {
 	revel.AppLog.Debugf("initializing database...")
 
 	createDatabase("lyceum", session)
+	createTable("lyceum", "artifact", session)
+	createTable("lyceum", "item", session)
 	createTable("lyceum", "library", session)
+	createTable("lyceum", "organization", session)
+	createTable("lyceum", "role", session)
+	createTable("lyceum", "user", session)
 
 	revel.AppLog.Debugf("initialized database")
 	return nil
 }
 
+// databaseExists will return whether or not the given database exists
 func databaseExists(name string, session *r.Session) bool {
 	res, err := r.DBList().Run(session)
 	if err != nil {
@@ -157,6 +145,7 @@ func createDatabase(name string, session *r.Session) error {
 		return nil
 	}
 
+	revel.AppLog.Debugf("creating database: %s", name)
 	res, err := r.DBCreate(name).Run(session)
 	if err != nil {
 		return err
@@ -181,6 +170,7 @@ func createTable(db string, name string, session *r.Session) error {
 		return nil
 	}
 
+	revel.AppLog.Debugf("creating table '%s' in database '%s'", name, db)
 	res, err := r.DB(db).TableCreate(name).Run(session)
 	if err != nil {
 		return err
