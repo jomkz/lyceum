@@ -1,0 +1,78 @@
+{{set . "title" "Libraries"}}
+{{template "header.html" .}}
+
+<h2>{{.title}}</h2>
+<div class="row">
+  <div class="col-12 col-sm-5 col-md-4 col-lg-3 col-xl-2 book-container">
+    <a href="#" data-toggle="modal" data-target="#createLibraryModal">
+      <div class="card mb-3 book-card" title="New Library">
+        <div class="card-body pt-2 pb-3 px-3 h-100">
+          <h6 class="card-title mt-0 mb-0 text-center">New Library</h6>
+          <div class="book-image">
+            <div class="d-flex h-100">
+              <div class="w-100 justify-content-center align-self-center text-center">
+                <i class="fa fa-3x fa-plus-square text-success" aria-hidden="true"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  {{range $index, $library := .libraries}}
+    <div class="col-12 col-sm-5 col-md-4 col-lg-3 col-xl-2 book-container">
+      <a href='{{url "Library.Detail" $library.ID}}'>
+        <div class="card mb-3 book-card" title="{{$library.Name}}">
+          <div class="card-body pt-2 pb-3 px-3 h-100">
+            <h6 class="card-title mt-0 mb-0 text-truncate">{{$library.Name}}</h6>
+            <div class="book-image">
+              <div class="d-flex h-100">
+                <div class="w-100 justify-content-center align-self-center text-center">
+                  <i class="fa fa-3x fa-cubes text-secondary" aria-hidden="true"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+  {{end}}
+</div>
+
+<div class="modal fade" id="createLibraryModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">New Library</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action='{{url "Library.Create"}}' method="POST" enctype="multipart/form-data" class="form">
+        <div class="modal-body">
+          <p>Please provide the details for the library.</p>
+          <div class="form-group">
+            <label for="txtName">Name</label>
+            <input type="text" id="txtName" class="form-control" name="name">
+          </div>
+          <div class="form-group">
+            <label for="txtDescription">Description</label>
+            <textarea id="txtDescription" class="form-control" name="description" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="txtTags">Tags</label>
+            <input type="text" id="txtTags" class="form-control" name="tags">
+            <small id="txtTagsHelpBlock" class="form-text text-muted">Seperate each tag with a comma.</small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary"><i class="fa fa-save" aria-hidden="true"></i>&nbsp;Save</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fa fa-times" aria-hidden="true"></i>&nbsp;Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{{template "footer.html" .}}

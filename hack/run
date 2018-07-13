@@ -1,0 +1,3 @@
+#!/bin/sh
+
+revel run github.com/jmckind/lyceum

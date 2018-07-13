@@ -1,0 +1,36 @@
+{{set . "title" .library.Name}}
+{{template "header.html" .}}
+
+<div class="row">
+  <div class="col-2">
+    <div class="book-image">
+      <div class="d-flex h-100">
+        <div class="w-100 justify-content-center align-self-center text-center">
+          <i class="fa fa-5x fa-book text-secondary" aria-hidden="true"></i>
+        </div>
+      </div>
+    </div>
+
+    <hr class="my-4">
+    <div class="text-center">
+      <a href='{{url "LibraryAPI.Delete" .library.ID}}' id="linkDelete" class="btn btn-danger btn-block" data-next='{{url "Library.List"}}' role="button"><i class="fa fa-trash" aria-hidden="true"></i>&nbsp;Delete</a>
+    </div>
+  </div>
+
+  <div class="col-10">
+    <h1>{{.library.Name}}</h1>
+    <small class="text-muted">Created <span class="lyceum-date-relative">{{.library.DateCreated}}</span> &mdash; Modified <span class="lyceum-date-relative">{{.library.DateModified}}</span></small>
+
+    <p class="lead">{{.library.Description}}</p>
+    <hr class="my-4">
+
+    <p>
+      {{range $index, $tag := .library.Tags}}
+        <span class="badge badge-secondary">{{$tag}}</span>
+      {{end}}
+    </p>
+  </div>
+</div>
+
+
+{{template "footer.html" .}}

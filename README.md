@@ -8,51 +8,40 @@ The idea for Lyceum came when an arbitrary file size limit was hit while
 attempting to upload a newly purchased eBook to a popular cloud based eBook
 library service. The desire was born to create a hosted version that can be
 deployed on a private network, with the content under full control of the owner.
-
+``
 ## Development
 
-Check out the source code and navigate to the project root directory. Ensure the
-project dependencies are present.
+Start the web server:
 
 ```
-dep ensure
+revel run myapp
 ```
 
-Build the application binaries
+Go to http://localhost:9000/ and you'll see:
 
-```
-./hack/build
-```
+    "It works"
 
-Run the application binary that you are interested in.
+### Code Layout
 
-```
-lyceum-api
-lyceum-scan
-```
+The directory structure of a generated Revel application:
 
-#### API
+    conf/             Configuration directory
+        app.conf      Main app configuration file
+        routes        Routes definition file
 
-Run the `api` application from the command line.
+    app/              App sources
+        init.go       Interceptor registration
+        controllers/  App controllers go here
+        views/        Templates directory
 
-```
-lyceum-api
-```
+    messages/         Message files
 
-From another window, you can issue curl requests against the api server that is
-running on localhost.
+    public/           Public static assets
+        css/          CSS files
+        js/           Javascript files
+        images/       Image files
 
-```
-curl -v localhost:4778/items
-```
-
-#### Scan
-
-Run the `scan` application from the command line.
-
-```
-lyceum-scan
-```
+    tests/            Test suites
 
 ## FAQ
 

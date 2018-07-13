@@ -1,0 +1,3 @@
+#!/bin/sh
+
+revel package github.com/jmckind/lyceum prod

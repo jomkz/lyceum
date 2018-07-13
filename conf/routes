@@ -1,0 +1,60 @@
+# Routes Config
+#
+# This file defines all application routes (Higher priority routes first)
+#
+
+module:testrunner
+module:jobs
+
+# Application routes
+GET     /                                       App.Index
+GET     /search                                 App.Search
+
+# Item routes
+GET     /item/:id                               Item.Detail
+GET     /read/:id                               Item.Read
+POST    /upload                                 Item.Upload
+GET     /uploads                                Item.List
+
+# Library routes
+GET     /libraries                              Library.List
+POST    /libraries                              Library.Create
+GET     /libraries/:id                          Library.Detail
+
+# Settings routes
+GET     /settings                               Settings.Index
+
+# API routes
+
+# Artifact API routes
+GET     /api/artifacts                          ArtifactAPI.List
+
+# Item API routes
+GET     /api/items                              ItemAPI.List
+POST    /api/items                              ItemAPI.Create
+GET     /api/items/:id                          ItemAPI.Get
+PUT     /api/items/:id                          ItemAPI.Update
+DELETE  /api/items/:id                          ItemAPI.Delete
+
+# Item API routes
+GET     /api/libraries                          LibraryAPI.List
+POST    /api/libraries                          LibraryAPI.Create
+GET     /api/libraries/:id                      LibraryAPI.Get
+PUT     /api/libraries/:id                      LibraryAPI.Update
+DELETE  /api/libraries/:id                      LibraryAPI.Delete
+
+# Ignore favicon requests
+GET     /favicon.ico                            404
+
+# Map static resources from the /app/public folder to the /public path
+GET     /public/*filepath                       Static.Serve("public")
+
+# Catch all, this will route any request into the controller path
+#
+#                    **** WARNING ****
+# Enabling this exposes any controller and function to the web.
+# ** This is a serious security issue if used online **
+#
+# For rapid development uncomment the following to add new controller.action endpoints
+# without having to add them to the routes table.
+# *       /:controller/:action                    :controller.:action
